@@ -1,0 +1,57 @@
+version: "3"
+
+services:
+  redis:
+    ports:
+      - "6379:6379"
+
+  db-postgres:
+    ports:
+      - "5555:5432"
+  nginx:
+    build:
+      context: nginx
+      dockerfile: Dockerfile-dev
+    volumes:
+      - ./nginx/conf/nginx-dev.conf:/etc/nginx/conf.d/default.conf
+
+  backend:
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend/public:/frontend/public
+      - ./frontend/src:/frontend/src
+      - ./frontend/.eslintrc.cjs:/frontend/.eslintrc.cjs
+      - ./frontend/index.html:/frontend/index.html
+      - ./frontend/tsconfig.json:/frontend/tsconfig.json
+      - ./frontend/tsconfig.node.json:/frontend/tsconfig.node.json
+      - ./frontend/vite.config.ts:/frontend/vite.config.ts
+    ports:
+      - "5173:5173"
+    command: [ "npm", "run", "dev" ]
+
+  flower:
+    hostname: flower
+    links:
+      - redis
+    env_file:
+      - .env
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    entrypoint: celery
+    command: -A celery_app.app flower
+    volumes:
+      - ./backend/analytics:/backend
+    depends_on:
+      - redis
+      - db-postgres
+    ports:
+      - "5556:5555"
+
+
