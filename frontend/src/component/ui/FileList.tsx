@@ -15,14 +15,19 @@ const FileList = () => {
     const [loading, setLoading] = useState(false)
 
 
-    const fetchFiles = (page: number | null) => {
-        if (!page) return
+    const fetchFiles = () => {
+        if (page === null) return
 
         setLoading(true)
         $api.get<FilesResponse>(`/files/?page=${page}&file=csv`)
             .then(response => {
                 setCount(response.data.count)
-                setFiles(prevState => [...prevState, ...response.data.results])
+                setFiles(prevState => {
+                    if (page === 1 && prevState.length !== 0) {
+                        return prevState
+                    }
+                    return [...prevState, ...response.data.results]
+                })
                 if (response.data.next) {
                     // @ts-ignore
                     setPage(prevState => prevState + 1)
@@ -37,16 +42,16 @@ const FileList = () => {
 
     const parentRef = useRef<HTMLDivElement | null>(null)
     const childRef = useRef<HTMLDivElement | null>(null)
-    useScroll(parentRef, childRef, () => fetchFiles(page))
+    useScroll(parentRef, childRef, () => fetchFiles())
 
     const list = {
-        visible: { opacity: 1 },
-        hidden: { opacity: 0 },
+        visible: {opacity: 1},
+        hidden: {opacity: 0},
     }
 
     const item = {
-        visible: { opacity: 1, x: 0 },
-        hidden: { opacity: 0, x: -400 },
+        visible: {opacity: 1, x: 0},
+        hidden: {opacity: 0, x: -400},
     }
 
 
@@ -66,6 +71,7 @@ const FileList = () => {
             >
                 {files.map(file => (
                     <motion.div
+                        key={file.id}
                         transition={{
                             duration: 0.6,
                             delay: 0.2,
