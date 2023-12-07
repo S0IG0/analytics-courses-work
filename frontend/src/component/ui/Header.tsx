@@ -1,4 +1,4 @@
-import {NamePages, Page, routes} from "@route/routes.tsx";
+import {NamePages, Page, routes, Visibly} from "@route/routes.tsx";
 import {Link, NavLink} from "react-router-dom";
 import {observer} from "mobx-react-lite";
 
@@ -6,6 +6,7 @@ export const Header = observer(() => {
     const pages: Page[] = Object.keys(NamePages)
         .filter(key => !isNaN(Number(key)))
         .map(key => routes[Number(key) as NamePages])
+        .filter(page => page.visibly.includes(Visibly.PUBLIC))
     return (
         <header>
             <nav className="navbar navbar-expand-md  border-bottom">

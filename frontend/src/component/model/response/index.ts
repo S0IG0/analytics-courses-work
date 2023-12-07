@@ -9,3 +9,9 @@ export interface FilesResponse {
     previous: null | string
     results: File[]
 }
+
+export interface Task {
+    id: number;
+    files: File[];
+    status: string;
+}

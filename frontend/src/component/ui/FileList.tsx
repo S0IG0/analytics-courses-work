@@ -4,6 +4,7 @@ import $api from "@api/http";
 import {Spinner} from "@ux/loader/Spinner.tsx";
 import useScroll from "@hook/useScroll.tsx";
 import FileCard from "@ui/FileCard.tsx";
+import {motion} from "framer-motion";
 
 
 const FileList = () => {
@@ -18,7 +19,7 @@ const FileList = () => {
         if (!page) return
 
         setLoading(true)
-        $api.get<FilesResponse>(`/files/?page=${page}`)
+        $api.get<FilesResponse>(`/files/?page=${page}&file=csv`)
             .then(response => {
                 setCount(response.data.count)
                 setFiles(prevState => [...prevState, ...response.data.results])
@@ -28,8 +29,8 @@ const FileList = () => {
                 } else {
                     setPage(null);
                 }
-
             })
+            .catch(() => setPage(null))
             .finally(() => setLoading(false))
     }
 
@@ -38,10 +39,24 @@ const FileList = () => {
     const childRef = useRef<HTMLDivElement | null>(null)
     useScroll(parentRef, childRef, () => fetchFiles(page))
 
+    const list = {
+        visible: { opacity: 1 },
+        hidden: { opacity: 0 },
+    }
+
+    const item = {
+        visible: { opacity: 1, x: 0 },
+        hidden: { opacity: 0, x: -400 },
+    }
+
+
     return (
         <div>
             <div>Всего файлов {count}</div>
-            <div
+            <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={list}
                 ref={parentRef}
                 className="files"
                 style={{
@@ -50,7 +65,15 @@ const FileList = () => {
                 }}
             >
                 {files.map(file => (
-                    <FileCard key={file.id} file={file}/>
+                    <motion.div
+                        transition={{
+                            duration: 0.6,
+                            delay: 0.2,
+                        }}
+                        variants={item}
+                    >
+                        <FileCard key={file.id} file={file}/>
+                    </motion.div>
                 ))}
 
                 <div
@@ -68,7 +91,7 @@ const FileList = () => {
                     }}
                     ref={childRef}
                 />
-            </div>
+            </motion.div>
         </div>
 
     );

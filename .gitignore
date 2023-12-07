@@ -43,3 +43,5 @@ out/
 **/venv
 **/8000
 **/*_initial.py
+/backend/analytics/tasks/migrations/0002_alter_task_status.py
+/backend/analytics/tasks/migrations/0003_task_files.py

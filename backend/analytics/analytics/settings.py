@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'django_filters',
     'files',
     'tasks',
 ]
@@ -141,3 +143,9 @@ MEDIA_ROOT = 'media/'
 MEDIA_URL = '/media/'
 
 CELERY_BROKER_URL = 'redis://redis:6379/0'
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
+}

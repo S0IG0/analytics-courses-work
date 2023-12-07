@@ -61,6 +61,7 @@ services:
     command: -A celery_app.app worker --loglevel=info
     volumes:
       - ./backend/analytics:/backend
+      - media:/backend/media
     depends_on:
       - redis
       - db-postgres
