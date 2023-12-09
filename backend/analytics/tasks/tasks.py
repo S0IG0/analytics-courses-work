@@ -23,16 +23,15 @@ def analytics(pk, file_id):
     try:
         with default_storage.open(path, 'rb') as file:
             df = pd.read_csv(StringIO(file.read().decode('utf-8')))
-    except FileNotFoundError as exception:
-        print(exception)
+        f(df, task)
+        task.status = task.COMPLETE
+        task.save()
+    except (Exception, FileNotFoundError) as exception:
+        print("ERROR", exception)
         task.status = task.ERROR
         task.save()
 
-    f(df, task)
 
-
-    task.status = task.COMPLETE
-    task.save()
 
 #
 # # Словарь с соответствием английских и русских названий столбцов
@@ -241,7 +240,6 @@ def f(data, task):
     total_quantity_revenue_packages = total_quantity_revenue_packages.sort_values(by='Количество', ascending=False)
     total_quantity_revenue_weight = total_quantity_revenue_weight.sort_values(by='Количество', ascending=False)
 
-
     sns.set(font_scale=0.8)
     plt.figure(figsize=(16, 22))
     sns.barplot(x='Количество', y='Наименование товара', data=total_quantity_revenue_packages, palette='viridis')
@@ -279,7 +277,3 @@ def f(data, task):
                    "балалаллаба аллбалалба аблалала аба лалба абалабабалалабаблалалбабалла"
                    "алаабалблбалбалалбаблаблалалалааблаблалалбалбла")
     save_graph(plt, task, description)
-
-
-
-

@@ -12,31 +12,33 @@ const AnalyticPage = () => {
     return (
         <div>
             {task && task.files.map((image, index) => (
-                <div
-                    style={{
-                        height: "45vh",
-                        overflow: "auto"
-                    }}
-                >
+                <>
                     <div>
                         {image.description}
                     </div>
-                    <motion.img
+                    <div
                         style={{
+                            height: "45vh",
+                            overflow: "auto"
+                        }}
+                    >
+                        <motion.img
+                            style={{
 
-                            width: "90%"
-                        }}
-                        src={image.file}
-                        alt="График"
-                        className="m-5"
-                        initial={{x: index % 2 === 0 ? -400 : 400, opacity: 0}}
-                        animate={{x: 0, opacity: 1}}
-                        transition={{
-                            type: "spring",
-                            duration: 1.2
-                        }}
-                    />
-                </div>
+                                width: "90%"
+                            }}
+                            src={image.file}
+                            alt="График"
+                            className="m-5"
+                            initial={{x: index % 2 === 0 ? -400 : 400, opacity: 0}}
+                            animate={{x: 0, opacity: 1}}
+                            transition={{
+                                type: "spring",
+                                duration: 1.2
+                            }}
+                        />
+                    </div>
+                </>
             ))}
         </div>
     );

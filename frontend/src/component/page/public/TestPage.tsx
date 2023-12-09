@@ -50,6 +50,10 @@ const TestPage = () => {
             name: "завершена",
             style: "success",
         },
+        error: {
+            name: "ошибка",
+            style: "danger",
+        },
     };
 
     const navigate = useNavigate();
