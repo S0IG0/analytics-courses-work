@@ -10,13 +10,18 @@ const AnalyticPage = () => {
     $api.get<Task>(`/task/${id}`).then((response) => setTask(response.data));
 
     return (
-        <div>
+        <div >
+
             {task && task.files.map((image, index) => (
-                <>
-                    <div>
+                <div className="card"
+                    style={{
+                        marginBottom: "15px"
+                    }}
+                >
+                    <div className="card-header">
                         {image.description}
                     </div>
-                    <div
+                    <div className="card-body"
                         style={{
                             height: "45vh",
                             overflow: "auto"
@@ -38,7 +43,7 @@ const AnalyticPage = () => {
                             }}
                         />
                     </div>
-                </>
+                </div>
             ))}
         </div>
     );
