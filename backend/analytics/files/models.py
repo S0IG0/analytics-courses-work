@@ -4,3 +4,4 @@ from django.db import models
 class File(models.Model):
     file = models.FileField(upload_to='uploads/')
     description = models.TextField(null=True)
+    title = models.TextField(null=True)

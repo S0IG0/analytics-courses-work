@@ -18,7 +18,10 @@ const AnalyticPage = () => {
                         marginBottom: "15px"
                     }}
                 >
-                    <div className="card-header">
+                    <h5 className="card-header">
+                        {image.title}
+                    </h5>
+                    <div className="card-body">
                         {image.description}
                     </div>
                     <div className="card-body"
@@ -27,14 +30,15 @@ const AnalyticPage = () => {
                             overflow: "auto"
                         }}
                     >
+
                         <motion.img
                             style={{
-
-                                width: "90%"
+                                width: "90%",
+                                margin: "0px"
                             }}
                             src={image.file}
                             alt="График"
-                            className="m-5"
+                            // className="m-5"
                             initial={{x: index % 2 === 0 ? -400 : 400, opacity: 0}}
                             animate={{x: 0, opacity: 1}}
                             transition={{
@@ -42,6 +46,7 @@ const AnalyticPage = () => {
                                 duration: 1.2
                             }}
                         />
+
                     </div>
                 </div>
             ))}

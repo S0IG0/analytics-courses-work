@@ -1,7 +1,8 @@
 export interface File {
     id: number,
     file: string,
-    description: null | string
+    description: null | string,
+    title: null | string
 }
 
 export interface FilesResponse {
