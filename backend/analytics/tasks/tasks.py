@@ -29,9 +29,9 @@ def analytics(pk, file_id):
         task.status = task.COMPLETE
         task.save()
     except (Exception, FileNotFoundError) as exception:
-        print("ERROR", exception)
         task.status = task.ERROR
         task.save()
+        raise exception
 
 
 def save_graph(graph, task, description):
@@ -46,6 +46,7 @@ def save_graph(graph, task, description):
         task.files.add(file_instance)
 
     os.remove(plot_file_path)
+
 
 def save_plotly_express_graph(fig, task, description):
     plot_file_path = f"{uuid.uuid4()}.png"
@@ -121,7 +122,6 @@ def f(data, task):
                    "балалаллаба аллбалалба аблалала аба лалба абалабабалалабаблалалбабалла"
                    "алаабалблбалбалалбаблаблалалалааблаблалалбалбла")
     save_graph(plt, task, description)
-
 
     #####Диаграммы совместных временных рядов продаж по времени первых (20% от общего числа) самых популярных артикулов на каждую неделю
 
