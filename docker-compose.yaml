@@ -77,6 +77,8 @@ services:
       - media:/service/media
     ports:
       - "80:80"
+    depends_on:
+      - backend
 
 volumes:
   postgresql-data:
