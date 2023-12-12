@@ -3,6 +3,7 @@ export interface File {
     file: string,
     name: string,
     description: null | string
+    title: null | string
 }
 
 export interface ResponsePagination {
@@ -23,6 +24,7 @@ export interface TasksResponse extends ResponsePagination {
 
 export interface TaskShort {
     id: number;
+    files: File[];
     status: string;
 }
 
