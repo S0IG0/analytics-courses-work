@@ -15,7 +15,7 @@ const FileCard = ({file}: Props) => {
     return (
         <div className="card mb-2" key={file.id}>
             <div className="card-body">
-                <h5 className="card-title">{file.file}</h5>
+                <h5 className="card-title">{file.name}</h5>
                 <button
                     onClick={() => choiceFile(file)}
                     className="btn btn-primary"

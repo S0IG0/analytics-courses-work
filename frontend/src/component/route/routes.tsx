@@ -1,8 +1,8 @@
 import {ReactNode} from "react";
 import {HomePage} from "@page/public/HomePage.tsx";
 import ViewingData from "@page/public/ViewingData.tsx";
-import TestPage from "@page/public/TestPage.tsx";
 import AnalyticPage from "@page/public/AnalyticPage.tsx";
+import ConcreteAnalyticPage from "@page/public/ConcreteAnalyticPage.tsx";
 import BrokerPage from "@page/public/BrokerPage.tsx";
 
 export enum Visibly {
@@ -42,15 +42,15 @@ export const routes: { [key in NamePages]: Page } = {
         visibly: [Visibly.PUBLIC],
     } as Page,
     [NamePages.TEST]: {
-        name: "Тестирование всяких красивых штучек :З",
-        path: "/test",
-        component: <TestPage/>,
+        name: "Аналитика",
+        path: "/analytic",
+        component: <AnalyticPage/>,
         visibly: [Visibly.PUBLIC],
     } as Page,
     [NamePages.ANALYTIC]: {
-        name: "Аналитика",
+        name: "Конкретная аналатика",
         path: "/analytic/:id",
-        component: <AnalyticPage/>,
+        component: <ConcreteAnalyticPage/>,
         visibly: [Visibly.PUBLIC_HIDDEN],
     } as Page,
     [NamePages.BROKER]: {

@@ -1,28 +1,24 @@
 import {useRef, useState} from "react";
-import {File, FilesResponse} from "@model/response";
+import {TaskShort, TasksResponse} from "@model/response";
 import $api from "@api/http";
-import {Spinner} from "@ux/loader/Spinner.tsx";
 import useScroll from "@hook/useScroll.tsx";
-import FileCard from "@ui/FileCard.tsx";
 import {motion} from "framer-motion";
+import {Spinner} from "@ux/loader/Spinner.tsx";
+import {Link} from "react-router-dom";
+import {state} from "@page/public/AnalyticPage.tsx";
 
-
-const FileList = () => {
-
-    const [files, setFiles] = useState<File[]>([])
-    const [count, setCount] = useState(0)
+const TaskList = () => {
+    const [tasks, setTasks] = useState<TaskShort[]>([])
     const [page, setPage] = useState<number | null>(1)
     const [loading, setLoading] = useState(false)
 
-
-    const fetchFiles = () => {
-        if (page === null  || loading) return
+    const fetchTasks = () => {
+        if (page === null || loading) return
 
         setLoading(true)
-        $api.get<FilesResponse>(`/files/?page=${page}&file=csv`)
+        $api.get<TasksResponse>(`/tasks/?page=${page}`)
             .then(response => {
-                setCount(response.data.count)
-                setFiles(prevState => {
+                setTasks(prevState => {
                     if (page === 1 && prevState.length !== 0) {
                         return prevState
                     }
@@ -39,10 +35,9 @@ const FileList = () => {
             .finally(() => setLoading(false))
     }
 
-
     const parentRef = useRef<HTMLDivElement | null>(null)
     const childRef = useRef<HTMLDivElement | null>(null)
-    useScroll(parentRef, childRef, () => fetchFiles())
+    useScroll(parentRef, childRef, () => fetchTasks())
 
     const list = {
         visible: {opacity: 1},
@@ -54,10 +49,8 @@ const FileList = () => {
         hidden: {opacity: 0, x: -400},
     }
 
-
     return (
         <div>
-            <div>Всего файлов {count}</div>
             <motion.div
                 initial="hidden"
                 animate="visible"
@@ -65,20 +58,48 @@ const FileList = () => {
                 ref={parentRef}
                 className="files"
                 style={{
-                    height: "45vh",
+                    height: "60vh",
                     overflow: "auto"
                 }}
             >
-                {files.map(file => (
+                {tasks.map(task => (
                     <motion.div
-                        key={file.id}
+                        key={task.id}
                         transition={{
                             duration: 0.6,
                             delay: 0.2,
                         }}
                         variants={item}
                     >
-                        <FileCard key={file.id} file={file}/>
+
+                        <div
+                            key={task.id}
+                            className="card mb-4"
+                            style={{
+                                width: 350,
+                            }}
+                        >
+                            <div className="card-header">
+                                Заявка №{task.id}
+                                <div>
+                                    {/*@ts-ignore*/}
+                                    <span className={`badge bg-${state[task.status].style}-subtle border border-${state[task.status].style}-subtle text-${state[task.status].style}-emphasis rounded-pill`}>
+                                    {/*@ts-ignore*/}
+                                        {state[task.status].name}
+                                </span>
+                                </div>
+
+                            </div>
+                            <div className="card-body">
+                                <Link
+                                    to={`/analytic/${task?.id}`}
+                                    className="btn btn-primary mt-2"
+                                >
+                                    Перейти к аналитике
+                                </Link>
+                            </div>
+                        </div>
+
                     </motion.div>
                 ))}
 
@@ -95,12 +116,12 @@ const FileList = () => {
                     style={{
                         height: 30,
                     }}
+
                     ref={childRef}
                 />
             </motion.div>
         </div>
-
     );
 };
 
-export default FileList;
+export default TaskList;

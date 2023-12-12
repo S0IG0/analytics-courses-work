@@ -17,13 +17,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from files.views import FileUploadView, FileList
-from tasks.views import RetrieveTask, StartAnalytic
+from files.views import FileUploadView, FileList, MacaroniList
+from tasks.views import TaskRetrieve, StartAnalytic, TaskList
 
 urlpatterns = [
     path('api/admin/', admin.site.urls),
     path('api/upload/', FileUploadView.as_view(), name='file-upload'),
     path('api/files/', FileList.as_view(), name='file-list'),
-    path('api/task/<int:pk>', RetrieveTask.as_view(), name='task-retrieve'),
+    path('api/tasks/', TaskList.as_view(), name='task-list'),
+    path('api/macaroni/', MacaroniList.as_view(), name='macaroni-list'),
+    path('api/task/<int:pk>', TaskRetrieve.as_view(), name='task-retrieve'),
     path('api/analytic/', StartAnalytic.as_view(), name='analytic-start'),
 ]

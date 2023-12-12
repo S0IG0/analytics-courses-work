@@ -1,18 +1,32 @@
 export interface File {
     id: number,
     file: string,
+    name: string,
     description: null | string
 }
 
-export interface FilesResponse {
+export interface ResponsePagination {
     count: number,
     next: null | string
     previous: null | string
+    results: any[]
+}
+
+export interface FilesResponse extends ResponsePagination {
     results: File[]
 }
 
-export interface Task {
+export interface TasksResponse extends ResponsePagination {
+    results: TaskShort[]
+}
+
+
+export interface TaskShort {
     id: number;
-    files: File[];
     status: string;
+}
+
+
+export interface Task extends TaskShort {
+    files: File[];
 }

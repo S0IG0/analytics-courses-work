@@ -18,5 +18,14 @@ class TaskSerializer(serializers.ModelSerializer):
         return serializer.data
 
 
+class ShortTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = (
+            'id',
+            'status'
+        )
+
+
 class AnalyticSerializer(serializers.Serializer):
     file_id = serializers.IntegerField(required=True)

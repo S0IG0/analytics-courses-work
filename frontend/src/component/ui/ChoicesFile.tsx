@@ -27,7 +27,7 @@ const FileChoices = () => {
                 >
                     <div className="card-header">Выбранный файл</div>
                     <div className="card-body">
-                        <h5 className="card-title">{file.file}</h5>
+                        <h5 className="card-title">{file.name}</h5>
                     </div>
                 </motion.div>
             )}
