@@ -4,7 +4,7 @@ import {useState} from "react";
 import {Task} from "@model/response";
 import {motion} from "framer-motion";
 
-const ConcreteAnalyticPage = () => {
+const AnalyticPage = () => {
     const {id} = useParams();
     const [task, setTask] = useState<Task | null>(null);
     $api.get<Task>(`/task/${id}`).then((response) => setTask(response.data));
@@ -14,27 +14,31 @@ const ConcreteAnalyticPage = () => {
 
             {task && task.files.map((image, index) => (
                 <div className="card"
-                    style={{
-                        marginBottom: "15px"
-                    }}
+                     style={{
+                         marginBottom: "15px"
+                     }}
                 >
-                    <div className="card-header">
+                    <h5 className="card-header">
+                        {image.title}
+                    </h5>
+                    <div className="card-body">
                         {image.description}
                     </div>
                     <div className="card-body"
-                        style={{
-                            height: "45vh",
-                            overflow: "auto"
-                        }}
+                         style={{
+                             height: "45vh",
+                             overflow: "auto"
+                         }}
                     >
+
                         <motion.img
                             style={{
-
-                                width: "90%"
+                                width: "90%",
+                                margin: "0px"
                             }}
                             src={image.file}
                             alt="График"
-                            className="m-5"
+                            // className="m-5"
                             initial={{x: index % 2 === 0 ? -400 : 400, opacity: 0}}
                             animate={{x: 0, opacity: 1}}
                             transition={{
@@ -42,6 +46,7 @@ const ConcreteAnalyticPage = () => {
                                 duration: 1.2
                             }}
                         />
+
                     </div>
                 </div>
             ))}
@@ -49,4 +54,4 @@ const ConcreteAnalyticPage = () => {
     );
 };
 
-export default ConcreteAnalyticPage;
+export default AnalyticPage;

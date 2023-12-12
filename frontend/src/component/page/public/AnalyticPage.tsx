@@ -29,7 +29,6 @@ export const state = {
 };
 
 const AnalyticPage = () => {
-    const {id} = useParams();
     const [task, setTask] = useState<Task | null>(null);
 
     useEffect(() => {
@@ -61,46 +60,6 @@ const AnalyticPage = () => {
 
     const navigate = useNavigate();
     return (
-        <div >
-
-            {task && task.files.map((image, index) => (
-                <div className="card"
-                    style={{
-                        marginBottom: "15px"
-                    }}
-                >
-                    <h5 className="card-header">
-                        {image.title}
-                    </h5>
-                    <div className="card-body">
-                        {image.description}
-                    </div>
-                    <div className="card-body"
-                        style={{
-                            height: "45vh",
-                            overflow: "auto"
-                        }}
-                    >
-
-                        <motion.img
-                            style={{
-                                width: "90%",
-                                margin: "0px"
-                            }}
-                            src={image.file}
-                            alt="График"
-                            // className="m-5"
-                            initial={{x: index % 2 === 0 ? -400 : 400, opacity: 0}}
-                            animate={{x: 0, opacity: 1}}
-                            transition={{
-                                type: "spring",
-                                duration: 1.2
-                            }}
-                        />
-
-                    </div>
-                </div>
-            ))}
         <div>
             <FileList/>
             <div className="mt-4"><ChoicesFile/></div>
@@ -172,3 +131,179 @@ const AnalyticPage = () => {
 };
 
 export default AnalyticPage;
+
+
+// import ChoicesFile from "@ui/ChoicesFile.tsx";
+// import $api from "@api/http";
+// import {store} from "@store/store.ts";
+// import {useState, useEffect} from "react";
+// import {Task} from "@model/response";
+// import {useNavigate} from "react-router-dom";
+// import {motion} from "framer-motion";
+// import TaskList from "@ui/TaskList.tsx";
+// import FileList from "@ui/FileList.tsx";
+//
+//
+// export const state = {
+//     created: {
+//         name: "создана",
+//         style: "secondary",
+//     },
+//     processing: {
+//         name: "обработка",
+//         style: "warning",
+//     },
+//     complete: {
+//         name: "завершена",
+//         style: "success",
+//     },
+//     error: {
+//         name: "ошибка",
+//         style: "danger",
+//     },
+// };
+//
+// const AnalyticPage = () => {
+//     const {id} = useParams();
+//     const [task, setTask] = useState<Task | null>(null);
+//
+//     useEffect(() => {
+//         const intervalId = setInterval(() => {
+//             if (task !== null && task.status !== "complete") {
+//                 checkTask();
+//             }
+//         }, 1000);
+//         return () => clearInterval(intervalId);
+//     }, [task]);
+//
+//     function createTask() {
+//         if (store.file === null) return;
+//
+//         $api
+//             .post<Task>("/analytic/", {
+//                 file_id: store.file.id,
+//             })
+//             .then((response) => {
+//                 setTask(response.data);
+//             });
+//     }
+//
+//     function checkTask() {
+//         if (task === null || task.status === "complete") return;
+//         console.log("checkTask");
+//         $api.get<Task>(`/task/${task.id}`).then((response) => setTask(response.data));
+//     }
+//
+//     const navigate = useNavigate();
+//     return (
+//         <div >
+//
+//             {task && task.files.map((image, index) => (
+//                 <div className="card"
+//                     style={{
+//                         marginBottom: "15px"
+//                     }}
+//                 >
+//                     <h5 className="card-header">
+//                         {image.title}
+//                     </h5>
+//                     <div className="card-body">
+//                         {image.description}
+//                     </div>
+//                     <div className="card-body"
+//                         style={{
+//                             height: "45vh",
+//                             overflow: "auto"
+//                         }}
+//                     >
+//
+//                         <motion.img
+//                             style={{
+//                                 width: "90%",
+//                                 margin: "0px"
+//                             }}
+//                             src={image.file}
+//                             alt="График"
+//                             // className="m-5"
+//                             initial={{x: index % 2 === 0 ? -400 : 400, opacity: 0}}
+//                             animate={{x: 0, opacity: 1}}
+//                             transition={{
+//                                 type: "spring",
+//                                 duration: 1.2
+//                             }}
+//                         />
+//
+//                     </div>
+//                 </div>
+//             ))}
+//         <div>
+//             <FileList/>
+//             <div className="mt-4"><ChoicesFile/></div>
+//             <button className="btn btn-primary mt-4" onClick={createTask}>
+//                 Создать заявку на аналитику
+//             </button>
+//             <div className="mt-4">
+//                 {task && (
+//                     <motion.div
+//                         key={task.id}
+//                         initial={{scale: 0, rotate: 180}}
+//                         animate={{rotate: 360, scale: 1}}
+//                         transition={{
+//                             type: "spring",
+//                             stiffness: 260,
+//                             damping: 20,
+//                         }}
+//                         className="card"
+//                         style={{
+//                             width: 350,
+//                         }}
+//                     >
+//                         <div className="card-header">
+//                             Заявка №{task.id}
+//                             <motion.div
+//                                 key={task.status}
+//                                 initial={{scale: 0}}
+//                                 animate={{scale: 1}}
+//                                 transition={{
+//                                     type: "spring",
+//                                     stiffness: 260,
+//                                     damping: 20,
+//                                 }}
+//                             >
+//                                 {/*@ts-ignore*/}
+//                                 <span className={`badge bg-${state[task.status].style}-subtle border border-${state[task.status].style}-subtle text-${state[task.status].style}-emphasis rounded-pill`}>
+//                                     {/*@ts-ignore*/}
+//                                     {state[task.status].name}
+//                                 </span>
+//                             </motion.div>
+//
+//                         </div>
+//                         <div className="card-body">
+//                             <motion.button
+//                                 key={Number(task.status !== "complete")}
+//
+//                                 initial={{scale: 1}}
+//                                 animate={{scale: 1.1}}
+//                                 transition={{
+//                                     type: "tween",
+//                                 }}
+//
+//                                 onClick={() => navigate(`/analytic/${task?.id}`)}
+//                                 disabled={task.status !== "complete"}
+//                                 className="btn btn-primary mt-2"
+//                             >
+//                                 Перейти к аналитике
+//                             </motion.button>
+//                         </div>
+//                     </motion.div>
+//                 )}
+//             </div>
+//             <div className="w-100 border-top mt-2 mb-2"/>
+//
+//             <h5>Заявки</h5>
+//             <TaskList/>
+//         </div>
+//     );
+// };
+//
+// export default AnalyticPage;
