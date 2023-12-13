@@ -29,4 +29,4 @@ class ShortTaskSerializer(serializers.ModelSerializer):
 
 class AnalyticSerializer(serializers.Serializer):
     file_id = serializers.IntegerField(required=True)
-    delivery = serializers.BooleanField(required=False)
+    delivery = serializers.BooleanField(required=False, default=False)
