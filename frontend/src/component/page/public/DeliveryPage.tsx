@@ -7,28 +7,10 @@ import {useNavigate} from "react-router-dom";
 import {motion} from "framer-motion";
 import TaskList from "@ui/TaskList.tsx";
 import FileList from "@ui/FileList.tsx";
+import {state} from "@page/public/AnalyticPage.tsx";
 
 
-export const state = {
-    created: {
-        name: "создана",
-        style: "secondary",
-    },
-    processing: {
-        name: "обработка",
-        style: "warning",
-    },
-    complete: {
-        name: "завершена",
-        style: "success",
-    },
-    error: {
-        name: "ошибка",
-        style: "danger",
-    },
-};
-
-const AnalyticPage = () => {
+const DeliveryPage = () => {
     const [task, setTask] = useState<Task | null>(null);
 
     useEffect(() => {
@@ -46,6 +28,7 @@ const AnalyticPage = () => {
         $api
             .post<Task>("/analytic/", {
                 file_id: store.file.id,
+                delivery: true,
             })
             .then((response) => {
                 setTask(response.data);
@@ -125,9 +108,9 @@ const AnalyticPage = () => {
             <div className="w-100 border-top mt-2 mb-2"/>
 
             <h5>Заявки</h5>
-            <TaskList delivery={false}/>
+            <TaskList delivery={true}/>
         </div>
     );
 };
 
-export default AnalyticPage;
+export default DeliveryPage;

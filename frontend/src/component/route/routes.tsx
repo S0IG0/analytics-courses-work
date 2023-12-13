@@ -4,6 +4,7 @@ import ViewingData from "@page/public/ViewingData.tsx";
 import AnalyticPage from "@page/public/AnalyticPage.tsx";
 import ConcreteAnalyticPage from "@page/public/ConcreteAnalyticPage.tsx";
 import BrokerPage from "@page/public/BrokerPage.tsx";
+import DeliveryPage from "@page/public/DeliveryPage.tsx";
 
 export enum Visibly {
     PUBLIC,
@@ -14,8 +15,9 @@ export enum Visibly {
 export enum NamePages {
     HOME,
     VIEW_DATA,
-    TEST,
     ANALYTIC,
+    ANALYTIC_CONCRETE,
+    DELIVERY,
     BROKER
 }
 
@@ -41,17 +43,23 @@ export const routes: { [key in NamePages]: Page } = {
         component: <ViewingData/>,
         visibly: [Visibly.PUBLIC],
     } as Page,
-    [NamePages.TEST]: {
+    [NamePages.ANALYTIC]: {
         name: "Аналитика",
         path: "/analytic",
         component: <AnalyticPage/>,
         visibly: [Visibly.PUBLIC],
     } as Page,
-    [NamePages.ANALYTIC]: {
+    [NamePages.ANALYTIC_CONCRETE]: {
         name: "Конкретная аналатика",
         path: "/analytic/:id",
         component: <ConcreteAnalyticPage/>,
         visibly: [Visibly.PUBLIC_HIDDEN],
+    } as Page,
+    [NamePages.DELIVERY]: {
+        name: "Планирование поставок",
+        path: "/delivery",
+        component: <DeliveryPage/>,
+        visibly: [Visibly.PUBLIC],
     } as Page,
     [NamePages.BROKER]: {
         name: "Брокер",

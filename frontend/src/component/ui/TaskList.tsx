@@ -7,7 +7,12 @@ import {Spinner} from "@ux/loader/Spinner.tsx";
 import {Link} from "react-router-dom";
 import {state} from "@page/public/AnalyticPage.tsx";
 
-const TaskList = () => {
+interface Props {
+    delivery: boolean
+}
+
+
+const TaskList = ({delivery}: Props) => {
     const [tasks, setTasks] = useState<TaskShort[]>([])
     const [page, setPage] = useState<number | null>(1)
     const [loading, setLoading] = useState(false)
@@ -16,7 +21,7 @@ const TaskList = () => {
         if (page === null || loading) return
 
         setLoading(true)
-        $api.get<TasksResponse>(`/tasks/?page=${page}`)
+        $api.get<TasksResponse>(`/tasks/?page=${page}&delivery=${delivery}`)
             .then(response => {
                 setTasks(prevState => {
                     if (page === 1 && prevState.length !== 0) {
