@@ -64,7 +64,9 @@ const TaskList = ({delivery}: Props) => {
                 className="files"
                 style={{
                     height: "60vh",
-                    overflow: "auto"
+                    overflow: "auto",
+                    display: "flex",
+                    flexWrap: "wrap"
                 }}
             >
                 {tasks.map(task => (
@@ -79,7 +81,7 @@ const TaskList = ({delivery}: Props) => {
 
                         <div
                             key={task.id}
-                            className="card mb-4"
+                            className="card m-4"
                             style={{
                                 width: 350,
                             }}
@@ -97,10 +99,10 @@ const TaskList = ({delivery}: Props) => {
                             </div>
                             <div className="card-body">
                                 <Link
-                                    to={`/analytic/${task?.id}`}
+                                    to={`/аналитика/${task?.id}`}
                                     className="btn btn-primary mt-2"
                                 >
-                                    Перейти к аналитике
+                                    Перейти к {delivery?"поставкам":"аналитике"}
                                 </Link>
                             </div>
                         </div>

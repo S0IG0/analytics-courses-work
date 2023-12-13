@@ -24,11 +24,11 @@ export interface TasksResponse extends ResponsePagination {
 
 export interface TaskShort {
     id: number;
-    files: File[];
     status: string;
 }
 
 
 export interface Task extends TaskShort {
     files: File[];
+    delivery: boolean
 }

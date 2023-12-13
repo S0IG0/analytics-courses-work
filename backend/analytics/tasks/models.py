@@ -29,23 +29,23 @@ class Supply(models.Model):
     # Наименование товара
     name = models.TextField()
     # Дата
-    date = models.DateField()
+    date = models.DateTimeField()
     # Поставка
-    supply = models.FloatField()
+    supply = models.FloatField(null=False, default=0.0)
     # Остаток на начало недели
-    balance_first = models.FloatField()
+    balance_first = models.FloatField(null=False, default=0.0)
     # Продажи за неделю
-    sell = models.FloatField()
+    sell = models.FloatField(null=False, default=0.0)
     # Остаток на складе
-    balance_storage = models.FloatField()
+    balance_storage = models.FloatField(null=False, default=0.0)
     # Стоимость хранения за неделю
-    price_storage = models.FloatField()
+    price_storage = models.FloatField(null=False, default=0.0)
     # Прибыль от продаж
-    profit = models.FloatField()
+    profit = models.FloatField(null=False, default=0.0)
     # Чистая прибыль
-    profit_clean = models.FloatField()
+    profit_clean = models.FloatField(null=False, default=0.0)
     # Упущенная выручка
-    profit_missed = models.FloatField()
+    profit_missed = models.FloatField(null=False, default=0.0)
 
     # Каждая запись привязана к задаче
     task = models.ForeignKey(Task, on_delete=models.CASCADE)

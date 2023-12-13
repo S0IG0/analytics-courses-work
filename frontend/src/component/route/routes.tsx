@@ -50,8 +50,8 @@ export const routes: { [key in NamePages]: Page } = {
         visibly: [Visibly.PUBLIC],
     } as Page,
     [NamePages.ANALYTIC_CONCRETE]: {
-        name: "Конкретная аналатика",
-        path: "/analytic/:id",
+        name: "Конкретная аналитика",
+        path: "/аналитика/:id",
         component: <ConcreteAnalyticPage/>,
         visibly: [Visibly.PUBLIC_HIDDEN],
     } as Page,

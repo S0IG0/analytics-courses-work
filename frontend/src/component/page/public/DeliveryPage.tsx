@@ -47,7 +47,7 @@ const DeliveryPage = () => {
             <FileList/>
             <div className="mt-4"><ChoicesFile/></div>
             <button className="btn btn-primary mt-4" onClick={createTask}>
-                Создать заявку на аналитику
+                Создать заявку на планирование поставки
             </button>
             <div className="mt-4">
                 {task && (
@@ -95,11 +95,11 @@ const DeliveryPage = () => {
                                     type: "tween",
                                 }}
 
-                                onClick={() => navigate(`/analytic/${task?.id}`)}
+                                onClick={() => navigate(`/аналитика/${task?.id}`)}
                                 disabled={task.status !== "complete"}
                                 className="btn btn-primary mt-2"
                             >
-                                Перейти к аналитике
+                                Перейти к поставкам
                             </motion.button>
                         </div>
                     </motion.div>

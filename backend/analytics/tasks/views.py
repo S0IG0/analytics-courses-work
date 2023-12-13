@@ -6,9 +6,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from files.views import SmallResultsSetPagination
-from tasks.filters import TaskFilter
-from tasks.models import Task
-from tasks.serializers import TaskSerializer, AnalyticSerializer, ShortTaskSerializer
+from tasks.filters import TaskFilter, SupplyFilter
+from tasks.models import Task, Supply
+from tasks.serializers import TaskSerializer, AnalyticSerializer, ShortTaskSerializer, SupplySerializer
 from tasks.tasks import analytics
 
 
@@ -36,3 +36,13 @@ class StartAnalytic(APIView):
         task = Task.objects.create(delivery=analytic.validated_data["delivery"])
         analytics.apply_async((task.pk, file_id,), )
         return Response(TaskSerializer(task).data, status=status.HTTP_201_CREATED)
+
+
+class SupplyList(ListCreateAPIView):
+    queryset = Supply.objects.all().order_by('name', 'date')
+    serializer_class = SupplySerializer
+    permission_classes = [AllowAny, ]
+    pagination_class = SmallResultsSetPagination
+    filter_backends = [DjangoFilterBackend, ]
+    filterset_class = SupplyFilter
+

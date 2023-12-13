@@ -3,6 +3,7 @@ import {Footer} from "@ui/Footer.tsx";
 import {Route, Routes} from "react-router-dom";
 import {NamePages, Page, routes} from "@route/routes.tsx";
 import {NotFoundPage} from "@page/public/NotFoundPage.tsx";
+import {ColorChoice} from "./component/ui/ColorChoice";
 
 function App() {
     const pages: Page[] = Object.keys(NamePages)
@@ -12,6 +13,7 @@ function App() {
     return (
         <>
             <Header/>
+            <ColorChoice/>
             <main className="flex-shrink-1">
                 <div className="p-4">
                     <Routes>

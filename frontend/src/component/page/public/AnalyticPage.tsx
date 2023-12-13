@@ -112,7 +112,7 @@ const AnalyticPage = () => {
                                     type: "tween",
                                 }}
 
-                                onClick={() => navigate(`/analytic/${task?.id}`)}
+                                onClick={() => navigate(`/аналитика/${task?.id}`)}
                                 disabled={task.status !== "complete"}
                                 className="btn btn-primary mt-2"
                             >

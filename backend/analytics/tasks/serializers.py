@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from files.serializers import FileSerializer
-from tasks.models import Task
+from tasks.models import Task, Supply
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -30,3 +30,9 @@ class ShortTaskSerializer(serializers.ModelSerializer):
 class AnalyticSerializer(serializers.Serializer):
     file_id = serializers.IntegerField(required=True)
     delivery = serializers.BooleanField(required=False, default=False)
+
+
+class SupplySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Supply
+        fields = "__all__"
