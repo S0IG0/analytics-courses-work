@@ -29,6 +29,6 @@ class StartAnalytic(APIView):
         analytic = AnalyticSerializer(data=request.data)
         analytic.is_valid(raise_exception=True)
         file_id = analytic.validated_data["file_id"]
-        task = Task.objects.create()
+        task = Task.objects.create(delivery=analytic.validated_data["delivery"])
         analytics.apply_async((task.pk, file_id,), )
         return Response(TaskSerializer(task).data, status=status.HTTP_201_CREATED)

@@ -25,7 +25,10 @@ def analytics(pk, file_id):
     try:
         with default_storage.open(path, 'rb') as file:
             df = pd.read_csv(StringIO(file.read().decode('utf-8')))
-        f(df, task)
+        if task.delivery:
+            delivery(df, task)
+        else:
+            f(df, task)
         task.status = task.COMPLETE
         task.save()
     except (Exception, FileNotFoundError) as exception:
@@ -246,4 +249,5 @@ def f(data, task):
     save_plotly_express_graph(fig, task, title, description)
 
 
-
+def delivery(data, task):
+    print("ТУТ ЛОГИКА КОТОРАЯ СЧИТАЕТ ПОСТАВКИ")
