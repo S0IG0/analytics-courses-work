@@ -1,6 +1,6 @@
 import {useParams} from "react-router-dom";
 import $api from "@api/http";
-import {useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {Task} from "@model/response";
 import {motion} from "framer-motion";
 import useScroll from "../../hook/useScroll";
@@ -9,7 +9,10 @@ import {ResponsePagination} from "../../model/response";
 const AnalyticPage = () => {
     const {id} = useParams();
     const [task, setTask] = useState<Task | null>(null);
-    $api.get<Task>(`/task/${id}`).then((response) => setTask(response.data));
+
+    useEffect(() => {
+        $api.get<Task>(`/task/${id}`).then((response) => setTask(response.data));
+    }, []);
 
     const [data, setData] = useState<any[]>([])
     const [page, setPage] = useState<number | null>(1)
@@ -40,6 +43,8 @@ const AnalyticPage = () => {
 
     const display = (item) => {
         if (typeof item === 'string') {
+            return item
+        } else if (String(item).indexOf(".") === -1) {
             return item
         }
         return Number(item).toFixed(2)
