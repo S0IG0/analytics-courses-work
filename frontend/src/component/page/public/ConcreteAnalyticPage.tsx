@@ -171,62 +171,21 @@ const AnalyticPage = () => {
         return Number(item).toFixed(2)
     }
 
+    let text1 = null;
+    let text2 = null;
+
+    if (task?.text) {
+        const text = task.text.split(";");
+        text1 = text[0]
+        text2 = text[1]
+    }
+
     return (
         <>
-            {task && (
-                <>
-                    {task.graphs.map(graph => (
-                        <div className="card"
-                             key={graph.id}
-                             style={{
-                                 marginBottom: "15px"
-                             }}
-                        >
-                            <h5 className="card-header">
-                                {graph.title}
-                            </h5>
-                            <div className="card-body">
-                                {graph.description}
-                            </div>
-                            <div className="card-body"
-                                 style={{
-                                     overflow: "auto"
-                                 }}
-                            >
-                                {graph.type_graph === "bar" && <Test key={graph.id} graph={graph}/>}
-                                {graph.type_graph === "line" && <Test1 key={graph.id} graph={graph}/>}
-                                {graph.type_graph === "pie" && <Test2 key={graph.id} graph={graph}/>}
-
-                            </div>
-                        </div>
-                    ))}
-
-                    {task.files.map(file => (
-                        <div className="card"
-                             key={file.id}
-                             style={{
-                                 marginBottom: "15px"
-                             }}
-                        >
-                            <h5 className="card-header">
-                                {file.title}
-                            </h5>
-                            <div className="card-body">
-                                {file.description}
-                            </div>
-                            <div className="card-body"
-                                 style={{
-                                     overflow: "auto"
-                                 }}
-                            >
-                                <img src={file.file} alt={file.name}/>
-                            </div>
-                        </div>
-                    ))}
-                </>
-            )}
             {task?.delivery && (
-                <div>
+                <div className="mb-4">
+                    <h1>Запланированные поставки</h1>
+                    <p>Ниже вы можете наблюдать сформированные под ваши данные поставки, которые опираются на удовлетворение 95% спроса посетителей.</p>
                     <div
                         ref={parentRef}
                         className="table-responsive"
@@ -271,6 +230,92 @@ const AnalyticPage = () => {
                         />
                     </div>
                 </div>
+            )}
+
+            {text2 && (
+                <>
+                    <h2>Рассчитанные метрики</h2>
+                    <div className="mb-4">
+                        {text2.split("\n").map(text => (
+                            <div>
+                                {text}
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
+
+            {task && (
+                <>
+                    {text1 && (
+                        <>
+                            <h1>Метод априори, планирование расстановки продуктов</h1>
+                            <p>Данный метод блаблаблалаб</p>
+                        </>
+                    )}
+
+                    {task.graphs.map(graph => (
+                        <div className="card"
+                             key={graph.id}
+                             style={{
+                                 marginBottom: "15px"
+                             }}
+                        >
+                            <h5 className="card-header">
+                                {graph.title}
+                            </h5>
+                            <div className="card-body">
+                                {graph.description}
+                            </div>
+                            <div className="card-body"
+                                 style={{
+                                     overflow: "auto"
+                                 }}
+                            >
+                                {graph.type_graph === "bar" && <Test key={graph.id} graph={graph}/>}
+                                {graph.type_graph === "line" && <Test1 key={graph.id} graph={graph}/>}
+                                {graph.type_graph === "pie" && <Test2 key={graph.id} graph={graph}/>}
+
+                            </div>
+                        </div>
+                    ))}
+
+                    {text1 && (
+                        <div style={{
+                            height: "300px",
+                            overflow: "auto"
+                        }}>
+                            {text1.split("\n").map(text => (
+                                <div>
+                                    {text}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {task.files.map(file => (
+                        <div className="card"
+                             key={file.id}
+                             style={{
+                                 marginBottom: "15px"
+                             }}
+                        >
+                            <h5 className="card-header">
+                                {file.title}
+                            </h5>
+                            <div className="card-body">
+                                {file.description}
+                            </div>
+                            <div className="card-body"
+                                 style={{
+                                     overflow: "auto"
+                                 }}
+                            >
+                                <img src={file.file} alt={file.name}/>
+                            </div>
+                        </div>
+                    ))}
+                </>
             )}
         </>
     );

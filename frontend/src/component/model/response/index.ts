@@ -44,4 +44,5 @@ export interface Task extends TaskShort {
     files: File[],
     graphs: Graph[],
     delivery: boolean,
+    text: string | null,
 }

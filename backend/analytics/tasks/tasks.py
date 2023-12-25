@@ -17,6 +17,7 @@ from tasks.serializers import SupplySerializer
 import plotly.express as px
 import plotly.io as pio
 from apyori import apriori
+from itertools import chain
 
 
 @shared_task
@@ -578,3 +579,68 @@ def delivery(data, task):
         supply_serializer = SupplySerializer(data=row)
         if supply_serializer.is_valid():
             supply_serializer.save()
+
+    # Фильтрация данных: удаление строк, где номер карты представлен как '<..>'
+    filtered_data = data[data['Номер Карты'] != '<..>']
+
+    # Группировка данных по дате и номеру карты, сбор товаров в каждой группе
+    grouped_data = filtered_data.groupby(['Дата', 'Номер Карты'])['Наименование товара'].apply(list).reset_index()
+
+    # Преобразование сгруппированных данных в формат, поддерживаемый библиотекой apyori
+    transactions = grouped_data['Наименование товара'].values.tolist()
+
+    # Разворачивание списков транзакций в один плоский список
+    all_items = list(chain.from_iterable(transactions))
+
+    # Создание DataFrame с колонкой 'Item' и подсчетом встречаемости каждого товара
+    item_counts = pd.Series(all_items).value_counts().reset_index()
+    item_counts.columns = ['Item', 'Count']
+
+    # Выбор топ-10 часто встречаемых товаров
+    top_items = item_counts.head(10)
+
+    graph = Graph.objects.create(
+        title="Топ-10 часто встречаемых товаров",
+        description="description",
+        x_axis=list(top_items['Count']),
+        y_axis=list(top_items['Item']),
+        x_title="Частота",
+        y_title="Наименование товара",
+
+    )
+    task.graphs.add(graph)
+
+    # Построение модели с использованием алгоритма apriori
+    rules = apriori(transactions, min_support=0.001, min_confidence=0.2)
+    results = list(rules)
+
+    # Разбор и вывод результатов
+    result = ''
+    for rule in results:
+
+        items = ', '.join(rule.items)
+        support = round(rule.support, 4)
+
+        result += f"Товары: {items}\n"
+
+        result += f"Support: {support}\n"
+
+        for stat in rule.ordered_statistics:
+            confidence = round(stat.confidence, 4)
+            lift = round(stat.lift, 4)
+            items_base = ', '.join(stat.items_base)
+            items_add = ', '.join(stat.items_add)
+
+            result += f"  Правило: {items_base} => {items_add}\n"
+            result += f"    Confidence: {confidence}\n"
+            result += f"    Lift: {lift}\n"
+
+        result += "=" * 50 + "\n"
+
+    result += ";"
+
+    result += 'Прибыль за весь период: ' + str(round(all_deliveries_df['Прибыль от продаж, руб'].sum())) + ' рублей\n'
+    result += 'Чистая прибыль за весь период: ' + str(round(all_deliveries_df['Чистая прибыль'].sum())) + ' рублей\n'
+    result += 'Упущенная выручка: ' + str(round(all_deliveries_df['Упущенная выручка, руб'].sum())) + ' рублей\n'
+
+    task.text = result

@@ -1,24 +1,17 @@
 import {PieChart, Pie, Cell, Sector} from 'recharts';
 import {useState} from "react";
+import {Slider} from "@mui/joy";
 
-
-// const data = [
-//     {name: 'Group A', value: 400},
-//     {name: 'Group B', value: 300},
-//     {name: 'Group C', value: 300},
-//     {name: 'Group D', value: 200},
-// ];
 
 interface Props {
     data: any
 }
 
 
-
 // @ts-ignore
 const renderActiveShape = (props) => {
     const RADIAN = Math.PI / 180;
-    const { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent, value } = props;
+    const {cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent, value} = props;
     const sin = Math.sin(-RADIAN * midAngle);
     const cos = Math.cos(-RADIAN * midAngle);
     const sx = cx + (outerRadius + 10) * cos;
@@ -52,9 +45,10 @@ const renderActiveShape = (props) => {
                 outerRadius={outerRadius + 10}
                 fill={fill}
             />
-            <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
-            <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
-            <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#333">{`Значение ${value}`}</text>
+            <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none"/>
+            <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none"/>
+            <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor}
+                  fill="#333">{`Значение ${value}`}</text>
             <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="#999">
                 {`(Rate ${(percent * 100).toFixed(2)}%)`}
             </text>
@@ -69,9 +63,22 @@ const PieChartUi = ({data}: Props) => {
     const onPieEnter = (_, index) => {
         setActiveIndex(index);
     };
-    
+
+    const [lightness, setLightness] = useState(51);
+    const [saturation, setSaturation] = useState(42)
+
+
     return (
         <div>
+            <div className="control-panel mt-4 w-75">
+                Яркость
+                <Slider max={100} value={lightness} valueLabelDisplay="on"
+                        onChange={(_, value) => setLightness(value as number)}/>
+                Насыщенность
+                <Slider max={100} value={saturation} valueLabelDisplay="on"
+                        onChange={(_, value) => setSaturation(value as number)}/>
+            </div>
+
             <PieChart width={800} height={500}>
                 <Pie
                     data={data}
@@ -87,11 +94,11 @@ const PieChartUi = ({data}: Props) => {
                 >
                     {/*@ts-ignore*/}
                     {data.map((entry, index) => {
-                        const hue = data.length * 360 + entry.value ; // Равномерное распределение цветов по кругу
-                        const lightness = 50; // Яркость
-                        const saturation = 80; // Насыщенность
+                        const hue = data.length * 360 + entry.value; // Равномерное распределение цветов по кругу
+                        // const lightness = 50; // Яркость
+                        // const saturation = 80; // Насыщенность
 
-                        return <Cell fill={`hsl(${hue},${saturation}%,${lightness}%)`} key={index} />;
+                        return <Cell fill={`hsl(${hue},${saturation}%,${lightness}%)`} key={index}/>;
                     })}
                 </Pie>
             </PieChart>

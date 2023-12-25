@@ -50,6 +50,7 @@ class Task(models.Model):
     files = models.ManyToManyField('files.File', related_name='tasks')
     delivery = models.BooleanField(default=False, null=False)
     graphs = models.ManyToManyField(Graph, related_name='graphs')
+    text = models.TextField(null=True)
 
 
 class Supply(models.Model):
