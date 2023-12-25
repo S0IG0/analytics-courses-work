@@ -1,21 +1,22 @@
 from rest_framework import serializers
 
 from files.serializers import FileSerializer
-from tasks.models import Task, Supply
+from tasks.models import Task, Supply, Graph
+
+
+class GraphSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Graph
+        fields = "__all__"
 
 
 class TaskSerializer(serializers.ModelSerializer):
-    files = serializers.SerializerMethodField()
+    files = FileSerializer(many=True)
+    graphs = GraphSerializer(many=True)
 
     class Meta:
         model = Task
         fields = '__all__'
-
-    @staticmethod
-    def get_files(task):
-        files = task.files.all()
-        serializer = FileSerializer(files, many=True)
-        return serializer.data
 
 
 class ShortTaskSerializer(serializers.ModelSerializer):

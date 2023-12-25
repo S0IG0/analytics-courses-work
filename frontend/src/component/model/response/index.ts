@@ -6,6 +6,18 @@ export interface File {
     title: null | string
 }
 
+
+export interface Graph {
+    id: number,
+    title: string,
+    description: string,
+    x_axis: any[],
+    y_axis: any[],
+    x_title: null | string,
+    y_title: null | string,
+    type_graph: string,
+}
+
 export interface ResponsePagination {
     count: number,
     next: null | string
@@ -23,12 +35,13 @@ export interface TasksResponse extends ResponsePagination {
 
 
 export interface TaskShort {
-    id: number;
-    status: string;
+    id: number,
+    status: string,
 }
 
 
 export interface Task extends TaskShort {
-    files: File[];
-    delivery: boolean
+    files: File[],
+    graphs: Graph[],
+    delivery: boolean,
 }

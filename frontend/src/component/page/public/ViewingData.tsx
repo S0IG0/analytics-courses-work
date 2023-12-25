@@ -9,6 +9,7 @@ const ViewingData = () => {
     return (
         <div>
             <FileList/>
+
             <div className="mb-4 mt-4">
                 <ChoicesFile/>
             </div>

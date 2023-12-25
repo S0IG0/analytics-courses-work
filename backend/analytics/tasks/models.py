@@ -1,6 +1,32 @@
 from django.db import models
 
 
+class Graph(models.Model):
+    BAR = "bar"
+    LINE = "line"
+    PIE = "pie"
+
+    choices = [
+        (BAR, "bar",),
+        (LINE, "line",),
+        (PIE, "pie",),
+    ]
+
+    type_graph = models.CharField(
+        max_length=30,
+        choices=choices,
+        default=BAR,
+        null=False,
+    )
+
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    x_axis = models.JSONField()
+    y_axis = models.JSONField()
+    x_title = models.CharField(max_length=255, null=True)
+    y_title = models.CharField(max_length=255, null=True)
+
+
 class Task(models.Model):
     CREATED = "created"
     PROCESSING = "processing"
@@ -23,6 +49,7 @@ class Task(models.Model):
 
     files = models.ManyToManyField('files.File', related_name='tasks')
     delivery = models.BooleanField(default=False, null=False)
+    graphs = models.ManyToManyField(Graph, related_name='graphs')
 
 
 class Supply(models.Model):

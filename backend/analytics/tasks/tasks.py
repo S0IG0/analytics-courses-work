@@ -1,22 +1,22 @@
 import os
 import uuid
 from io import StringIO
-import pandas as pd
-import seaborn as sns
-import plotly.express as px
-import plotly.io as pio
-import numpy as np
 
-import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 from django.core.files.base import ContentFile
 
 from django.core.files.storage import default_storage
 
 from files.models import File
-from tasks.models import Task
+from tasks.models import Task, Graph
 from celery import shared_task
 
 from tasks.serializers import SupplySerializer
+
+import plotly.express as px
+import plotly.io as pio
+from apyori import apriori
 
 
 @shared_task
@@ -26,6 +26,7 @@ def analytics(pk, file_id):
     task.status = task.PROCESSING
     task.save()
     try:
+
         with default_storage.open(path, 'rb') as file:
             df = pd.read_csv(StringIO(file.read().decode('utf-8')))
         if task.delivery:
@@ -80,6 +81,46 @@ def f(data, task):
 
     # Разделение данных на макароны на развесе
     pasta_on_weight = data[~data['Количество'].apply(lambda x: x.is_integer())]
+
+    # Суммирование количества и общей выручки для каждой категории
+    quantity_in_packages = pasta_in_packages['Количество'].sum()
+    quantity_on_weight = pasta_on_weight['Количество'].sum()
+
+    total_revenue_in_packages = pasta_in_packages['Сумма к оплате'].sum()
+    total_revenue_on_weight = pasta_on_weight['Сумма к оплате'].sum()
+
+    # Построение круговой диаграммы для соотношения количества
+    labels_quantity = ['Макароны в упаковках', 'Макароны на весу']
+    sizes_quantity = [quantity_in_packages, quantity_on_weight]
+
+    graph = Graph.objects.create(
+        title="Соотношение количества макарон в упаковках и на весу",
+        description="description",
+        x_axis=labels_quantity,
+        y_axis=sizes_quantity,
+        x_title="Названия",
+        y_title="Значения",
+        type_graph=Graph.PIE,
+
+    )
+    task.graphs.add(graph)
+
+    # Построение круговой диаграммы для соотношения по общей выручке
+    labels_revenue = ['Выручка от макарон в упаковках', 'Выручка от макарон на весу']
+    sizes_revenue = [total_revenue_in_packages, total_revenue_on_weight]
+
+    graph = Graph.objects.create(
+        title="Соотношение по общей выручке от макарон в упаковках и на весу",
+        description="description",
+        x_axis=labels_revenue,
+        y_axis=sizes_revenue,
+        x_title="Названия",
+        y_title="Значения",
+        type_graph=Graph.PIE,
+
+    )
+    task.graphs.add(graph)
+
     # Группировка данных по товарной группе и коду товара для макарон в пачках И на развес
     grouped_data_packages = pasta_in_packages.groupby(['Товарная группа', 'Код товара', 'Наименование товара'])
     total_quantity_revenue_packages = grouped_data_packages.agg(
@@ -93,50 +134,72 @@ def f(data, task):
     total_quantity_revenue_packages = total_quantity_revenue_packages.sort_values(by='Количество', ascending=False)
     total_quantity_revenue_weight = total_quantity_revenue_weight.sort_values(by='Количество', ascending=False)
 
-    sns.set(font_scale=0.8)
-    plt.figure(figsize=(16, 22))
-    sns.barplot(x='Количество', y='Наименование товара', data=total_quantity_revenue_packages, palette='viridis')
-    # plt.title('Продажи пачек, шт')
     title = "№1. Распределение товаров по продажам в пачках"
     description = ("Данный график предоставляет диаграмму продаж каждого товара в штуках, начиная с"
                    " самого большого количества продаж за период и передвигаясь к самому маленькому. <br>"
                    "Ось y - наименование товара, ось х - количество проданных штук.")
-    save_graph(plt, task, title, description)
 
-    # макароны на развес
-    plt.figure(figsize=(12, 6))
-    sns.barplot(x='Количество', y='Наименование товара', data=total_quantity_revenue_weight, palette='viridis')
-    # plt.title('Диаграмма продаж макарон на развес (Количество проданных килограмм)')
+    graph = Graph.objects.create(
+        title=title,
+        description=description,
+        x_axis=list(total_quantity_revenue_packages['Количество']),
+        y_axis=list(total_quantity_revenue_packages['Наименование товара']),
+        x_title="Количество",
+        y_title="Наименование товара",
+
+    )
+    task.graphs.add(graph)
+
     title = "№2. Распределение товаров по продажам на развес"
     description = ("Данный график предоставляет диаграмму продаж каждого товара в киллограммах, начиная с"
                    " самого большого количества продаж за период и передвигаясь к самому маленькому.<br>"
                    "Ось y - наименование товара, ось х - количество проданных киллограмм товара.")
-    save_graph(plt, task, title, description)
 
-    # Выручка в рублях, макароны в пачках
-    # Установка размера шрифта
-    sns.set(font_scale=0.8)
-    plt.figure(figsize=(16, 22))
-    sns.barplot(x='Сумма к оплате', y='Наименование товара', data=total_quantity_revenue_packages, palette='viridis')
-    # plt.title('Выручка в рублях. Макароны в ПАЧКАХ')
+    graph = Graph.objects.create(
+        title=title,
+        description=description,
+        x_axis=list(total_quantity_revenue_weight['Количество']),
+        y_axis=list(total_quantity_revenue_weight['Наименование товара']),
+        x_title="Количество",
+        y_title="Наименование товара",
+
+    )
+    task.graphs.add(graph)
+
     title = "№3. Распределение выручки за товары в пачках"
     description = ("На данном графике отображается суммарная выручка за период по каждому наименованию товара."
                    " Обратите внимание, что наименования отсортированы, как на графике продаж в штуках, для удобства "
                    "анализа количества проданных штук и суммы, на которую они были проданы. <br>"
                    "Ось у - наименование товара, ось х - сумма, на которую продан товар за период.")
-    save_graph(plt, task, title, description)
 
-    # Выручка в рублях, макароны на развес
-    plt.figure(figsize=(12, 6))
-    sns.barplot(x='Сумма к оплате', y='Наименование товара', data=total_quantity_revenue_weight, palette='viridis')
-    # plt.title('Выручка в рублях. Макароны на РАЗВЕС')
+    graph = Graph.objects.create(
+        title=title,
+        description=description,
+        x_axis=list(total_quantity_revenue_packages['Сумма к оплате']),
+        y_axis=list(total_quantity_revenue_packages['Наименование товара']),
+        x_title="Сумма к оплате",
+        y_title="Наименование товара",
+
+    )
+    task.graphs.add(graph)
+
     title = "№4. Распределение выручки за товары на развес"
     description = ("На данном графике отображается суммарная выручка за период по каждому наименованию товара. "
                    "Обратите внимание, что наименования отсортированы, как на графике продаж в киллограммах, "
                    "для удобства"
                    " анализа количества проданных киллограмм и суммы, на которую они были проданы. <br>"
                    "Ось у - наименование товара, ось х - сумма, на которую продан товар за период.")
-    save_graph(plt, task, title, description)
+
+    graph = Graph.objects.create(
+        title=title,
+        description=description,
+        x_axis=list(total_quantity_revenue_weight['Сумма к оплате']),
+        y_axis=list(total_quantity_revenue_weight['Наименование товара']),
+        x_title="Сумма к оплате",
+        y_title="Наименование товара",
+
+    )
+    task.graphs.add(graph)
 
     #####Диаграммы совместных временных рядов продаж по времени первых (20% от общего числа) самых популярных артикулов на каждую неделю
 
@@ -170,43 +233,73 @@ def f(data, task):
 
     # Суммарное количество продаж по каждой неделе
     weekly_quantity_2 = weekly_data_2['Количество'].sum().reset_index()
+    weekly_quantity_2['Дата'] = weekly_quantity_2['Дата'].dt.strftime('%Y-%m-%d')
 
     # Преобразование данных в формат, подходящий для Plotly Express
     fig_data = weekly_quantity.melt(id_vars=['Дата', 'Наименование товара'], value_vars='Количество',
                                     var_name='Метрика', value_name='Значение')
 
-    # Визуализация
-    fig = px.line(fig_data, x='Дата', y='Значение', color='Наименование товара', line_group='Наименование товара',
-                  labels={'Значение': 'Количество пачек', 'Наименование товара': 'Товар'})
-
-    # Легенда
-    fig.update_layout(legend=dict(x=1, y=0.5))
-    fig.update_layout(height=900, width=1600)
-
     title = "№5. Распределение продаж по неделям. Товары в пачках"
     description = ("На данном графике блаблабл балабал балбала балабала аблаала аблалаба"
                    "балалаллаба аллбалалба аблалала аба лалба абалабабалалабаблалалбабалла"
                    "алаабалблбалбалалбаблаблалалалааблаблалалбалбла")
-    save_plotly_express_graph(fig, task, title, description)
+
+    x_axis = fig_data["Дата"].dt.strftime('%Y-%m-%d').tolist()
+    y_axis = []
+
+    for name in set(weekly_quantity["Наименование товара"]):
+        filtered_data = weekly_quantity[weekly_quantity["Наименование товара"] == name]
+        y_axis.append({
+            "дата": filtered_data["Дата"].dt.strftime('%Y-%m-%d').tolist(),
+            "Наименование товара": name,
+            "Количество": filtered_data["Количество"].to_list(),
+        })
+
+    graph = Graph.objects.create(
+        title=title,
+        description=description,
+        x_axis=x_axis,
+        y_axis=y_axis,
+        x_title="Дата",
+        y_title="Значение",
+        type_graph=Graph.LINE,
+
+    )
+    task.graphs.add(graph)
 
     # Преобразование данных в формат, подходящий для Plotly Express
     fig_data = weekly_quantity_2.melt(id_vars=['Дата', 'Наименование товара'], value_vars='Количество',
                                       var_name='Метрика', value_name='Значение')
-
-    # Визуализация
-    fig = px.line(fig_data, x='Дата', y='Значение', color='Наименование товара', line_group='Наименование товара',
-                  labels={'Значение': 'Вес, кг', 'Наименование товара': 'Товар'})
-
-    # Легенда
-    fig.update_layout(legend=dict(x=1, y=0.5))
-    fig.update_layout(height=900, width=1600)
-
     # Отображение графика
     title = "№6. Распределение продаж по неделям. Товары на развес"
     description = ("На данном графике блаблабл балабал балбала балабала аблаала аблалаба"
                    "балалаллаба аллбалалба аблалала аба лалба абалабабалалабаблалалбабалла"
                    "алаабалблбалбалалбаблаблалалалааблаблалалбалбла")
-    save_plotly_express_graph(fig, task, title, description)
+
+    fig_data['Дата'] = pd.to_datetime(fig_data['Дата'])
+    x_axis = fig_data["Дата"].dt.strftime('%Y-%m-%d').tolist()
+    y_axis = []
+
+    for name in set(weekly_quantity_2["Наименование товара"]):
+        filtered_data = weekly_quantity_2[weekly_quantity_2["Наименование товара"] == name]
+        filtered_data['Дата'] = pd.to_datetime(filtered_data['Дата'])
+        y_axis.append({
+            "дата": filtered_data["Дата"].dt.strftime('%Y-%m-%d').tolist(),
+            "Наименование товара": name,
+            "Количество": filtered_data["Количество"].to_list(),
+        })
+
+    graph = Graph.objects.create(
+        title=title,
+        description=description,
+        x_axis=x_axis,
+        y_axis=y_axis,
+        x_title="Дата",
+        y_title="Значение",
+        type_graph=Graph.LINE,
+
+    )
+    task.graphs.add(graph)
 
     # Группировка данных по товару и дате
     cumulative_data = weekly_quantity.groupby(['Товарная группа', 'Код товара', 'Наименование товара', 'Дата'])
@@ -217,9 +310,9 @@ def f(data, task):
     # Визуализация диаграммы накопления количества проданных товаров с использованием Plotly
     fig = px.line(cumulative_quantity, x='Дата', y='Количество', color='Наименование товара',
                   labels={'Количество': 'Кумулятивная сумма'})
-    # Включение всплывающих подсказок
+    # # Включение всплывающих подсказок
     fig.update_traces(mode='lines+markers', hovertemplate='Дата: %{x}<br>Количество: %{y}')
-    # Легенда
+    # # Легенда
     fig.update_layout(legend=dict(x=1, y=0.5))
     fig.update_layout(height=900, width=1500)
     # Отображение графика
@@ -227,6 +320,8 @@ def f(data, task):
     description = ("На данном графике блаблабл балабал балбала балабала аблаала аблалаба"
                    "балалаллаба аллбалалба аблалала аба лалба абалабабалалабаблалалбабалла"
                    "алаабалблбалбалалбаблаблалалалааблаблалалбалбла")
+
+    # TODO SAVE GRAPH
     save_plotly_express_graph(fig, task, title, description)
 
     # Группировка данных по товару и дате
@@ -239,9 +334,9 @@ def f(data, task):
     # Визуализация диаграммы накопления количества проданных товаров с использованием Plotly
     fig = px.line(cumulative_quantity_2, x='Дата', y='Количество', color='Наименование товара',
                   labels={'Количество': 'Кумулятивная сумма'})
-    # Включение всплывающих подсказок
+    # # Включение всплывающих подсказок
     fig.update_traces(mode='lines+markers', hovertemplate='Дата: %{x}<br>Количество: %{y}')
-    # Легенда
+    # # Легенда
     fig.update_layout(legend=dict(x=1, y=0.5))
     fig.update_layout(height=900, width=1500)
     # Отображение графика
@@ -249,6 +344,7 @@ def f(data, task):
     description = ("На данном графике блаблабл балабал балбала балабала аблаала аблалаба"
                    "балалаллаба аллбалалба аблалала аба лалба абалабабалалабаблалалбабалла"
                    "алаабалблбалбалалбаблаблалалалааблаблалалбалбла")
+    # TODO SAVE GRAPH
     save_plotly_express_graph(fig, task, title, description)
 
 
@@ -332,8 +428,9 @@ def delivery(data, task):
     average_intensity = average_intensity.sort_values(by=['Товарная группа', 'Код товара', 'Наименование товара'],
                                                       ascending=[True, True, True])
     average_intensity_2 = \
-    weekly_quantity.groupby(['Товарная группа', 'Код товара', 'Наименование товара', pd.Grouper(key='Дата', freq='W')])[
-        'Количество'].mean().reset_index()
+        weekly_quantity.groupby(
+            ['Товарная группа', 'Код товара', 'Наименование товара', pd.Grouper(key='Дата', freq='W')])[
+            'Количество'].mean().reset_index()
     average_intensity_2 = average_intensity_2.sort_values(
         by=['Товарная группа', 'Код товара', 'Наименование товара', 'Дата'], ascending=[True, True, True, True])
 
@@ -361,7 +458,8 @@ def delivery(data, task):
 
     # Подсчет количества каждого сочетания
     quantiles_combinations_count = same_quantiles_products.groupby(
-        ['0.25-квантиль', '0.75-квантиль']).size().reset_index(name='Количество')
+        ['0.25-квантиль', '0.75-квантиль']
+    ).size().reset_index(name='Количество')
 
     all_deliveries = []
 
@@ -413,9 +511,9 @@ def delivery(data, task):
 
                     # Подсчет продаж за неделю
                     weekly_sales_quantity = product_data[(product_data['Дата'] >= current_date) & (
-                                product_data['Дата'] < current_date + pd.DateOffset(7))]['Количество'].sum()
+                            product_data['Дата'] < current_date + pd.DateOffset(7))]['Количество'].sum()
                     weekly_sales_value = product_data[(product_data['Дата'] >= current_date) & (
-                                product_data['Дата'] < current_date + pd.DateOffset(7))]['Сумма к оплате'].sum()
+                            product_data['Дата'] < current_date + pd.DateOffset(7))]['Сумма к оплате'].sum()
 
                     # Проверка, хватит ли товара на неделю
                     if current_stock >= weekly_sales_quantity:
@@ -459,7 +557,6 @@ def delivery(data, task):
 
     # Создание и вывод таблицы с поставками для всех товаров
     all_deliveries_df = pd.DataFrame(all_deliveries)
-    print(len(all_deliveries_df))
     # Словарь для соответствия имен столбцов CSV и полей в сериализаторе
     column_mapping = {
         'Наименование товара': 'name',
@@ -480,11 +577,4 @@ def delivery(data, task):
         row['task'] = task.id
         supply_serializer = SupplySerializer(data=row)
         if supply_serializer.is_valid():
-            print(row)
-            print('Данные прошли валидацию')
             supply_serializer.save()
-        else:
-            print('Данные НЕ прошли валидацию')
-            print(supply_serializer.errors)
-
-
